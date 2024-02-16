@@ -31,7 +31,7 @@ public static class ManagementApi
         try
         {
             var url = new Uri($"{input.TenantUrl}/api/{input.ManagementApiVersion}/{input.Path}");
-            using var responseMessage = await GetHttpRequestResponseAsync(new HttpClient(), input.Method.ToString(), url, headers, cancellationToken);
+            using var responseMessage = await GetHttpRequestResponseAsync(input.Method.ToString(), url, headers, cancellationToken);
             hbody = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             var hstatusCode = (int)responseMessage.StatusCode;
 
@@ -79,15 +79,15 @@ public static class ManagementApi
         return headers.ToDictionary(key => key.Name, value => value.Value, StringComparer.InvariantCultureIgnoreCase);
     }
 
-    private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(HttpClient httpClient, string method, Uri url, IDictionary<string, string> headers, CancellationToken cancellationToken)
+    private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(string method, Uri url, IDictionary<string, string> headers, CancellationToken cancellationToken)
     {
         HttpResponseMessage response;
         cancellationToken.ThrowIfCancellationRequested();
+        using var httpClient = new HttpClient();
         using var request = new HttpRequestMessage(new HttpMethod(method), url);
-        var requestHeaderAddedSuccessfully = false;
 
         foreach (var header in headers)
-            requestHeaderAddedSuccessfully = request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            request.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
         try
         {
@@ -98,11 +98,6 @@ public static class ManagementApi
             if (cancellationToken.IsCancellationRequested)
                 throw; // Cancellation is from outside -> Just throw
             throw new Exception("HttpRequest was canceled, most likely due to a timeout.", canceledException); // Cancellation is from inside of the request, mostly likely a timeout
-        }
-        finally
-        {
-            request.Dispose();
-            httpClient.Dispose();
         }
 
         return response;
