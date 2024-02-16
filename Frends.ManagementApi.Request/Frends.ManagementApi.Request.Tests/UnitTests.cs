@@ -13,8 +13,8 @@ internal class UnitTests
     /// </summary>
     private readonly string tenantUrl = "https://tenant.frendsapp.com/";
     private readonly string token = "token";
-    private Input input = new ();
-    private Options options = new ();
+    private Input input = new();
+    private Options options = new();
 
     [SetUp]
     public void SetUp()
