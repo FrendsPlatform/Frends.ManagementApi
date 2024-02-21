@@ -21,11 +21,9 @@ internal class UnitTests
     {
         this.input = new Input
         {
-            TenantUrl = this.tenantUrl,
+            Url = this.tenantUrl,
             Token = this.token,
-            ManagementApiVersion = "v0.9",
-            Path = @"environment-variables",
-            Method = Methods.GET,
+            Method = Methods.Get,
         };
 
         this.options = new Options
@@ -40,8 +38,8 @@ internal class UnitTests
     {
         var ret = await ManagementApi.Request(this.input, this.options, default);
         Assert.That(ret.Success is true);
-        Assert.That(ret.ErrorMessage is null);
-        Assert.That(ret.Data != null);
+        Assert.NotNull(ret.ErrorMessage);
+        Assert.NotNull(ret.Data);
     }
 
     [Ignore("Cannot be tested in Github")]
@@ -59,8 +57,8 @@ internal class UnitTests
         this.input.Token = "foo";
         this.options.ThrowExceptionOnError = false;
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.That(ret.Success is false);
-        Assert.That(ret.Data is null);
-        Assert.That(ret.ErrorMessage != null);
+        Assert.IsFalse(ret.Success);
+        Assert.IsNull(ret.Data is null);
+        Assert.NotNull(ret.ErrorMessage != null);
     }
 }

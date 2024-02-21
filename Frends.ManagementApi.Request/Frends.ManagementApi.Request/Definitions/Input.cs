@@ -9,37 +9,73 @@ using System.ComponentModel.DataAnnotations;
 public class Input
 {
     /// <summary>
-    /// HTTP request method.
+    /// Gets or sets HTTP request method.
     /// </summary>
-    /// <example>Methods.GET</example>
-    [DefaultValue(Methods.GET)]
+    /// <example>Methods.Get.</example>
+    [DefaultValue(Methods.Get)]
     public Methods Method { get; set; }
 
     /// <summary>
-    /// Tenant URL.
+    /// Gets or sets URL.
     /// </summary>
-    /// <example>https://tenant.frendsapp.com/</example>
-    public string TenantUrl { get; set; }
+    /// <example>https://tenant.frendsapp.com/v0.9/api-management/access/api-keys/{id}.</example>
+    public string Url { get; set; }
 
     /// <summary>
-    /// Versions of Management API.
+    /// Gets or sets Bearer token.
     /// </summary>
-    /// <example>v0.9</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("v0.9")]
-    public string ManagementApiVersion { get; set; }
-
-    /// <summary>
-    /// Path.
-    /// </summary>
-    /// <example>api-management/access/api-keys/{id}</example>
-    public string Path { get; set; }
-
-    /// <summary>
-    /// Bearer token.
-    /// </summary>
-    /// <example>abcd123</example>
+    /// <example>abcd123.</example>
     [DisplayFormat(DataFormatString = "Text")]
     [PasswordPropertyText]
     public string Token { get; set; }
+
+    /// <summary>
+    /// Gets or sets message to be sent with the request.
+    /// </summary>
+    /// <example>
+    /// {
+    ///   "agentGroupId": 0,
+    ///   "processes": [    {
+    ///   "processGuid": "00000000-0000-0000-0000-000000000000"
+    ///   ...
+    /// </example>
+    [UIHint(nameof(Methods), "", Methods.Post, Methods.Delete, Methods.Patch, Methods.Put)]
+    public string Message { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether multipart is used.
+    /// If true, using Content-Type = multipart/form-data instead of application/json.
+    /// </summary>
+    /// <example>false.</example>
+    public bool IsMultipart { get; set; }
+
+    /// <summary>
+    /// Gets or sets how the file resource will be handled.
+    /// </summary>
+    /// <example>FileHandler.Download.</example>
+    [UIHint(nameof(IsMultipart), "", true)]
+    [DefaultValue(FileHandler.Download)]
+    public FileHandler FileHandler { get; set; }
+
+    /// <summary>
+    /// Gets or sets array of files.
+    /// </summary>
+    /// <example>{ {FileParameterKey = FileParameterKey.File, Fullpath = "C:\temp\file.txt"} }.</example>
+    [UIHint(nameof(FileHandler), "", FileHandler.Upload)]
+    public SendFileParameters[] FilePaths { get; set; }
+
+    /// <summary>
+    /// Gets or sets download path.
+    /// </summary>
+    /// <example>C:\temp\foo.txt.</example>
+    [UIHint(nameof(FileHandler), "", FileHandler.Download)]
+    public string DownloadPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets manual parameters.
+    /// No need to add Content-Type, Accept and Authorization headers.
+    /// </summary>
+    /// <example>{ {Key = foo, Value = bar, ParameterType = ParameterTypes.GetOrPost} }.</example>
+    [UIHint(nameof(IsMultipart), "", true)]
+    public ManualParameters[] ManualParameters { get; set; }
 }

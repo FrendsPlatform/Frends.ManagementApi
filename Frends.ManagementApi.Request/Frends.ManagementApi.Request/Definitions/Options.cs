@@ -15,4 +15,10 @@ public class Options
     /// <example>true</example>
     [DefaultValue(true)]
     public bool ThrowExceptionOnError { get; set; }
+
+    /// <summary>
+    /// Timeout in seconds.
+    /// </summary>
+    /// <example>10</example>
+    public int Timeout { get; set; }
 }

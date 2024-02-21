@@ -1,12 +1,13 @@
-﻿#pragma warning disable SA1503 // Braces should not be omitted
+﻿#pragma warning disable SA1000 // Keywords should be spaced correctly. new() vs new ().
+#pragma warning disable SA1503 // Braces should not be omitted
 namespace Frends.ManagementApi.Request;
 
 using Frends.ManagementApi.Request.Definitions;
+using RestSharp;
+using RestSharp.Authenticators.OAuth2;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Net.Http;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,80 +27,96 @@ public static class ManagementApi
     public static async Task<Result> Request([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
         InputChecker(input);
-        var headers = GetHeaderDictionary(input);
-        var hbody = string.Empty;
-        try
-        {
-            var url = new Uri($"{input.TenantUrl}/api/{input.ManagementApiVersion}/{input.Path}");
-            using var responseMessage = await GetHttpRequestResponseAsync(input.Method.ToString(), url, headers, cancellationToken);
-            hbody = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var hstatusCode = (int)responseMessage.StatusCode;
+        var responseMessage = await GetRestResponse(input, options.Timeout, cancellationToken);
 
-            if (hstatusCode != 200)
-            {
-                if (options.ThrowExceptionOnError)
-                    throw new Exception(hbody);
-                else
-                    return new Result(false, null, hbody);
-            }
+        if (responseMessage.ErrorMessage.Length > 0 && options.ThrowExceptionOnError)
+            throw new Exception(responseMessage.ErrorMessage);
 
-            return new Result(true, hbody, null);
-        }
-        catch (Exception ex)
-        {
-            if (options.ThrowExceptionOnError)
-                throw;
-            return new Result(false, hbody, ex);
-        }
+        return new Result(responseMessage.ErrorMessage.Length > 0, responseMessage, responseMessage.ErrorMessage);
     }
 
     private static void InputChecker(Input input)
     {
-        if (string.IsNullOrEmpty(input.TenantUrl))
-            throw new ArgumentNullException(nameof(input.TenantUrl) + " cannot be empty.");
-        if (string.IsNullOrEmpty(input.ManagementApiVersion))
-            throw new ArgumentNullException(nameof(input.ManagementApiVersion) + " cannot be empty.");
+        if (string.IsNullOrEmpty(input.Url))
+            throw new ArgumentNullException(nameof(input.Url) + " cannot be empty.");
+        if (string.IsNullOrEmpty(input.Token))
+            throw new ArgumentNullException(nameof(input.Token) + " cannot be empty.");
     }
 
-    private static IDictionary<string, string> GetHeaderDictionary(Input inputs)
+    private static Method GetMethod(Methods methods)
     {
-        var authHeader = new Header
+        return methods switch
         {
-            Name = "Authorization",
-            Value = $"Bearer {inputs.Token}",
+            Methods.Get => Method.Get,
+            Methods.Post => Method.Post,
+            Methods.Put => Method.Put,
+            Methods.Patch => Method.Patch,
+            Methods.Delete => Method.Delete,
+            _ => throw new ArgumentNullException(nameof(methods)),
         };
-        var acceptHeader = new Header
-        {
-            Name = "Accept",
-            Value = $"application/json",
-        };
-        var headers = new[] { authHeader, acceptHeader }.ToArray();
-
-        // Ignore case for headers and key comparison
-        return headers.ToDictionary(key => key.Name, value => value.Value, StringComparer.InvariantCultureIgnoreCase);
     }
 
-    private static async Task<HttpResponseMessage> GetHttpRequestResponseAsync(string method, Uri url, IDictionary<string, string> headers, CancellationToken cancellationToken)
+    private static ParameterType GetParameterType(ParameterTypes parameterTypes)
     {
-        HttpResponseMessage response;
-        cancellationToken.ThrowIfCancellationRequested();
-        using var httpClient = new HttpClient();
-        using var request = new HttpRequestMessage(new HttpMethod(method), url);
-
-        foreach (var header in headers)
-            request.Headers.TryAddWithoutValidation(header.Key, header.Value);
-
-        try
+        return parameterTypes switch
         {
-            response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-        }
-        catch (TaskCanceledException canceledException)
+            ParameterTypes.GetOrPost => ParameterType.GetOrPost,
+            ParameterTypes.UrlSegment => ParameterType.UrlSegment,
+            ParameterTypes.HttpHeader => ParameterType.HttpHeader,
+            ParameterTypes.RequestBody => ParameterType.RequestBody,
+            ParameterTypes.QueryString => ParameterType.QueryString,
+            _ => throw new ArgumentNullException(nameof(parameterTypes)),
+        };
+    }
+
+    private static async Task<RestResponse> GetRestResponse(Input input, int timeout, CancellationToken cancellationToken)
+    {
+        RestClientOptions restClientOptions = new()
         {
-            if (cancellationToken.IsCancellationRequested)
-                throw; // Cancellation is from outside -> Just throw
-            throw new Exception("HttpRequest was canceled, most likely due to a timeout.", canceledException); // Cancellation is from inside of the request, mostly likely a timeout
+            BaseUrl = new Uri(input.Url),
+            MaxTimeout = (int)TimeSpan.FromSeconds(Convert.ToDouble(timeout)).Ticks,
+            Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(input.Token, "Bearer"),
+        };
+        RestClient restClient = new(restClientOptions);
+        RestRequest request = null;
+
+        request.Resource = "/";
+        request.Method = GetMethod(input.Method);
+        request.AlwaysMultipartFormData = input.IsMultipart;
+        request.AddHeader("Content-Type", input.IsMultipart ? "multipart/form-data" : "application/json");
+        request.AddHeader("Accept", "application/json");
+
+        if (input.ManualParameters.Length > 0)
+        {
+            foreach (var manualParameter in input.ManualParameters)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                request.AddParameter(manualParameter.Key, manualParameter.Value, GetParameterType(manualParameter.ParameterType));
+            }
         }
 
-        return response;
+        if (input.FileHandler is FileHandler.Upload)
+        {
+            foreach (var file in input.FilePaths)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!File.Exists(file.Fullpath))
+                    throw new FileNotFoundException("Input file was not found. File: " + file.Fullpath);
+                var fileParameterKey = file.FileParameterKey switch
+                {
+                    FileParameterKey.File => "file",
+                    _ => "content",
+                };
+                request.AddFile(fileParameterKey, file.Fullpath);
+            }
+
+            return await restClient.ExecuteAsync(request, cancellationToken);
+        }
+
+        request.Resource = "#";
+        var fileBytes = restClient.DownloadData(request);
+        File.WriteAllBytes(Path.GetFullPath(input.DownloadPath), fileBytes);
+        return null;
     }
 }
