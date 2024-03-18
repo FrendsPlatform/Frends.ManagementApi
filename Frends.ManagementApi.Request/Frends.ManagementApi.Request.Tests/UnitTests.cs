@@ -21,11 +21,11 @@ internal class UnitTests
     private Input input = new();
     private Options options = new();
     private readonly string _apiKeyName = $"TaskTestApiKeyName_{Guid.NewGuid()}";
-    private static int _apikeyId = 0;
+    private int _apikeyId = 0;
     private readonly string _rulesetName = "TaskTestRuleSet";
-    private static int _rulesetId = 0;
+    private int _rulesetId = 0;
     private readonly string _apiSpecFile = Path.Combine(Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName, "TaskTest.yaml");
-    private static int _apiSpecId = 0;
+    private int _apiSpecId = 0;
 
     [SetUp]
     public void SetUp()
@@ -345,15 +345,14 @@ internal class UnitTests
         Assert.NotNull(ret.Data);
     }
 
-    //[Test]
-    public async Task Test_Delete_ApiKey_Rename()
+    public async Task Test_Delete_ApiKey()
     {
         _apikeyId = await CreateApiKey();
         _rulesetId = await CreateRuleSet();
         this.input.Method = Methods.Post;
         this.input.Url = $@"{testTenant}api/v1/api-management/access/api-keys/{_apikeyId}";
         this.input.Message = $@"{{
-  ""name"": ""New name{Guid.NewGuid}"",
+  ""name"": ""New name{Guid.NewGuid()}"",
   ""rulesetIds"": [
     {_rulesetId}
   ],

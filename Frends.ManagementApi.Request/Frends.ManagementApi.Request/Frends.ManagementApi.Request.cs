@@ -38,7 +38,7 @@ public static class ManagementApi
                 MaxTimeout = (int)TimeSpan.FromSeconds(Convert.ToDouble(options.Timeout)).Ticks,
                 Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(token, "Bearer"),
             };
-            RestClient restClient = new(restClientOptions);
+            using var restClient = new RestClient(restClientOptions);
             RestRequest restRequest = GetRestRequest(input, cancellationToken);
 
             if (input.Method is Methods.Get && !string.IsNullOrEmpty(input.DownloadPath))
@@ -89,7 +89,7 @@ public static class ManagementApi
         {
             BaseUrl = new Uri("https://login.microsoftonline.com/unthink.onmicrosoft.com/oauth2/token"),
         };
-        RestClient restClient = new(restClientOptions);
+        using var restClient = new RestClient(restClientOptions);
         RestRequest restRequest = new()
         {
             Method = Method.Post,

@@ -26,7 +26,7 @@ public class ManualParameters
     /// RequestBody = Parameter that will be added to the request body.
     /// QueryString = Parameter that will be added to the query string.
     /// </summary>
-    /// <example>ParameterTypes.GetOrPost</example>
+    /// <example>ParameterTypes.GetOrPost.</example>
     [DefaultValue(ParameterTypes.GetOrPost)]
     public ParameterTypes ParameterType { get; set; }
 }
