@@ -32,22 +32,6 @@ public enum Methods
 }
 
 /// <summary>
-/// File handler.
-/// </summary>
-public enum FileHandler
-{
-    /// <summary>
-    /// Download file.
-    /// </summary>
-    Download,
-
-    /// <summary>
-    /// Upload file.
-    /// </summary>
-    Upload,
-}
-
-/// <summary>
 /// Selection of file parameter key.
 /// </summary>
 public enum FileParameterKey

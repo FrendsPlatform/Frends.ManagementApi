@@ -1,5 +1,5 @@
 # Frends.ManagementApi.Request
-Task for reading data from Frends Management API.
+Task for Frends Management API related operations.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/FrendsPlatform/Frends.ManagementApi/actions/workflows/Request_build_and_test_on_main.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.ManagementApi/actions)

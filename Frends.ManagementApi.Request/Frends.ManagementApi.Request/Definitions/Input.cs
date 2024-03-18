@@ -18,13 +18,45 @@ public class Input
     /// <summary>
     /// Gets or sets URL.
     /// </summary>
-    /// <example>https://tenant.frendsapp.com/v0.9/api-management/access/api-keys/{id}.</example>
+    /// <example>https://tenant.frendsapp.com/api/v1/api-management/access/api-keys/1.</example>
     public string Url { get; set; }
 
     /// <summary>
-    /// Gets or sets Bearer token.
+    /// Gets or sets a value indicating whether token is generated.
+    /// </summary>
+    /// <example>false.</example>
+    [DefaultValue(false)]
+    public bool GeneratedToken { get; set; }
+
+    /// <summary>
+    /// gets or sets Application URI.
+    /// </summary>
+    /// <example>api://qwe123-rty456-uio789-1p2i-asd9078.</example>
+    [UIHint(nameof(GeneratedToken), "", true)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string ApplicationUri { get; set; }
+
+    /// <summary>
+    /// Gets or sets application ID.
+    /// </summary>
+    /// <example>qwe123-rty456-uio789-1p2i-asd9078.</example>
+    [UIHint(nameof(GeneratedToken), "", true)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string ApplicationId { get; set; }
+
+    /// <summary>
+    /// Gets or sets client secret.
+    /// </summary>
+    /// <example>1r2t3y4u5i6o7p8a9s.</example>
+    [UIHint(nameof(GeneratedToken), "", true)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string ClientSecret { get; set; }
+
+    /// <summary>
+    /// Gets or sets bearer token.
     /// </summary>
     /// <example>abcd123.</example>
+    [UIHint(nameof(GeneratedToken), "", false)]
     [DisplayFormat(DataFormatString = "Text")]
     [PasswordPropertyText]
     public string Token { get; set; }
@@ -39,7 +71,6 @@ public class Input
     ///   "processGuid": "00000000-0000-0000-0000-000000000000"
     ///   ...
     /// </example>
-    [UIHint(nameof(Methods), "", Methods.Post, Methods.Delete, Methods.Patch, Methods.Put)]
     public string Message { get; set; }
 
     /// <summary>
@@ -47,35 +78,27 @@ public class Input
     /// If true, using Content-Type = multipart/form-data instead of application/json.
     /// </summary>
     /// <example>false.</example>
+    [DefaultValue(false)]
     public bool IsMultipart { get; set; }
 
     /// <summary>
-    /// Gets or sets how the file resource will be handled.
+    /// Gets or sets download path where resource will be exported.
     /// </summary>
-    /// <example>FileHandler.Download.</example>
-    [UIHint(nameof(IsMultipart), "", true)]
-    [DefaultValue(FileHandler.Download)]
-    public FileHandler FileHandler { get; set; }
-
-    /// <summary>
-    /// Gets or sets array of files.
-    /// </summary>
-    /// <example>{ {FileParameterKey = FileParameterKey.File, Fullpath = "C:\temp\file.txt"} }.</example>
-    [UIHint(nameof(FileHandler), "", FileHandler.Upload)]
-    public SendFileParameters[] FilePaths { get; set; }
-
-    /// <summary>
-    /// Gets or sets download path.
-    /// </summary>
-    /// <example>C:\temp\foo.txt.</example>
-    [UIHint(nameof(FileHandler), "", FileHandler.Download)]
+    /// <example>C:\temp\foo.json.</example>
+    [UIHint(nameof(Method), "", Methods.Get)]
     public string DownloadPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets array of files to be imported.
+    /// </summary>
+    /// <example>{ {FileParameterKey = FileParameterKey.File, Fullpath = "C:\temp\file.json"} }.</example>
+    [UIHint(nameof(Method), "", Methods.Post)]
+    public SendFileParameters[] FilePaths { get; set; }
 
     /// <summary>
     /// Gets or sets manual parameters.
     /// No need to add Content-Type, Accept and Authorization headers.
     /// </summary>
     /// <example>{ {Key = foo, Value = bar, ParameterType = ParameterTypes.GetOrPost} }.</example>
-    [UIHint(nameof(IsMultipart), "", true)]
     public ManualParameters[] ManualParameters { get; set; }
 }

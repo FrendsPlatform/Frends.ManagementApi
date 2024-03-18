@@ -3,6 +3,7 @@
 namespace Frends.ManagementApi.Request;
 
 using Frends.ManagementApi.Request.Definitions;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using RestSharp.Authenticators.OAuth2;
 using System;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 public static class ManagementApi
 {
     /// <summary>
-    /// Task for reading data from Frends Management API.
+    /// Task for Frends Management API related operations.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.ManagementApi.Request).
     /// </summary>
     /// <param name="input">Input parameters.</param>
@@ -26,21 +27,79 @@ public static class ManagementApi
     /// <returns>Object { bool Success, dynamic Data, dynamic ErrorMessage }.</returns>
     public static async Task<Result> Request([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
-        InputChecker(input);
-        var responseMessage = await GetRestResponse(input, options.Timeout, cancellationToken);
+        try
+        {
+            InputChecker(input);
+            var token = input.GeneratedToken ? await GetToken(input.ApplicationId, input.ClientSecret, input.ApplicationUri, cancellationToken) : input.Token;
 
-        if (responseMessage.ErrorMessage.Length > 0 && options.ThrowExceptionOnError)
-            throw new Exception(responseMessage.ErrorMessage);
+            RestClientOptions restClientOptions = new()
+            {
+                BaseUrl = new Uri(input.Url),
+                MaxTimeout = (int)TimeSpan.FromSeconds(Convert.ToDouble(options.Timeout)).Ticks,
+                Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(token, "Bearer"),
+            };
+            RestClient restClient = new(restClientOptions);
+            RestRequest restRequest = GetRestRequest(input, cancellationToken);
 
-        return new Result(responseMessage.ErrorMessage.Length > 0, responseMessage, responseMessage.ErrorMessage);
+            if (input.Method is Methods.Get && !string.IsNullOrEmpty(input.DownloadPath))
+            {
+                var extension = input.Url.Contains("processes") && input.Url.Contains("export") ? ".json_" : ".json";
+                var downloadRequest = await DownloadRequest(restRequest, restClient, extension, input.DownloadPath, cancellationToken);
+
+                if (downloadRequest.Contains("There is no data to write to the file."))
+                    return new Result(false, null, downloadRequest);
+
+                return new Result(true, downloadRequest, null);
+            }
+
+            if (input.Method is Methods.Post && input.FilePaths != null && input.FilePaths.Length > 0)
+            {
+                var postRequest = await SendFileRequest(restClient, restRequest, input.FilePaths, cancellationToken);
+                if ((int)postRequest.StatusCode >= 200 && (int)postRequest.StatusCode <= 299)
+                    return new Result(true, postRequest, null);
+                return new Result(false, null, postRequest);
+            }
+
+            var simpleReq = await restClient.ExecuteAsync(restRequest, cancellationToken);
+            if ((int)simpleReq.StatusCode >= 200 && (int)simpleReq.StatusCode <= 299)
+                return new Result(true, simpleReq.Content, null);
+
+            return new Result(false, null, simpleReq);
+        }
+        catch (Exception ex)
+        {
+            if (options.ThrowExceptionOnError)
+                throw;
+
+            return new Result(false, null, ex);
+        }
     }
 
     private static void InputChecker(Input input)
     {
         if (string.IsNullOrEmpty(input.Url))
-            throw new ArgumentNullException(nameof(input.Url) + " cannot be empty.");
-        if (string.IsNullOrEmpty(input.Token))
-            throw new ArgumentNullException(nameof(input.Token) + " cannot be empty.");
+            throw new ArgumentNullException($"{nameof(input.Url)} cannot be empty.");
+        if (input.GeneratedToken is false && string.IsNullOrEmpty(input.Token))
+            throw new ArgumentNullException($"{nameof(input.Token)} cannot be empty when {nameof(input.GeneratedToken)} is false.");
+    }
+
+    private static async Task<string> GetToken(string applicationId, string clientSecret, string applicationUri, CancellationToken cancellationToken)
+    {
+        RestClientOptions restClientOptions = new()
+        {
+            BaseUrl = new Uri("https://login.microsoftonline.com/unthink.onmicrosoft.com/oauth2/token"),
+        };
+        RestClient restClient = new(restClientOptions);
+        RestRequest restRequest = new()
+        {
+            Method = Method.Post,
+        };
+        var obj = @$"client_id={applicationId}&client_secret={clientSecret}&grant_type=client_credentials&resource={applicationUri}";
+        restRequest.AddStringBody(obj, contentType: ContentType.Plain);
+        restRequest.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+        var res = await restClient.ExecuteAsync(restRequest, cancellationToken).ConfigureAwait(false);
+        var token = JToken.Parse(res.Content);
+        return token.SelectToken("access_token").ToString();
     }
 
     private static Method GetMethod(Methods methods)
@@ -69,54 +128,68 @@ public static class ManagementApi
         };
     }
 
-    private static async Task<RestResponse> GetRestResponse(Input input, int timeout, CancellationToken cancellationToken)
+    private static RestRequest GetRestRequest(Input input, CancellationToken cancellationToken)
     {
-        RestClientOptions restClientOptions = new()
+        RestRequest restRequest = new()
         {
-            BaseUrl = new Uri(input.Url),
-            MaxTimeout = (int)TimeSpan.FromSeconds(Convert.ToDouble(timeout)).Ticks,
-            Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(input.Token, "Bearer"),
+            AlwaysMultipartFormData = input.IsMultipart,
+            Method = GetMethod(input.Method),
         };
-        RestClient restClient = new(restClientOptions);
-        RestRequest request = null;
+        restRequest.AddHeader("Content-Type", input.IsMultipart ? "multipart/form-data" : "application/json");
+        restRequest.AddHeader("Accept", "application/json");
 
-        request.Resource = "/";
-        request.Method = GetMethod(input.Method);
-        request.AlwaysMultipartFormData = input.IsMultipart;
-        request.AddHeader("Content-Type", input.IsMultipart ? "multipart/form-data" : "application/json");
-        request.AddHeader("Accept", "application/json");
+        if (!string.IsNullOrEmpty(input.Message))
+            restRequest.AddBody(input.Message);
 
-        if (input.ManualParameters.Length > 0)
+        if (input.ManualParameters != null && input.ManualParameters.Length > 0)
         {
             foreach (var manualParameter in input.ManualParameters)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                request.AddParameter(manualParameter.Key, manualParameter.Value, GetParameterType(manualParameter.ParameterType));
+                restRequest.AddParameter(manualParameter.Key, manualParameter.Value, GetParameterType(manualParameter.ParameterType));
             }
         }
 
-        if (input.FileHandler is FileHandler.Upload)
+        return restRequest;
+    }
+
+    private static async Task<RestResponse> SendFileRequest(RestClient restClient, RestRequest restRequest, SendFileParameters[] filePaths, CancellationToken cancellationToken)
+    {
+        foreach (var file in filePaths)
         {
-            foreach (var file in input.FilePaths)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!File.Exists(file.Fullpath))
+                throw new FileNotFoundException(@$"Input file was not found. File: {file.Fullpath}");
+
+            var fileParameterKey = file.FileParameterKey switch
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                FileParameterKey.File => "file",
+                _ => "content",
+            };
 
-                if (!File.Exists(file.Fullpath))
-                    throw new FileNotFoundException("Input file was not found. File: " + file.Fullpath);
-                var fileParameterKey = file.FileParameterKey switch
-                {
-                    FileParameterKey.File => "file",
-                    _ => "content",
-                };
-                request.AddFile(fileParameterKey, file.Fullpath);
-            }
-
-            return await restClient.ExecuteAsync(request, cancellationToken);
+            restRequest.AddFile(fileParameterKey, file.Fullpath);
         }
 
-        request.Resource = "#";
-        var fileBytes = restClient.DownloadData(request);
-        File.WriteAllBytes(Path.GetFullPath(input.DownloadPath), fileBytes);
-        return null;
+        return await restClient.ExecuteAsync(restRequest, cancellationToken);
+    }
+
+    private static async Task<string> DownloadRequest(RestRequest restRequest, RestClient restClient, string extension, string downloadPath, CancellationToken cancellationToken)
+    {
+        var filePath = downloadPath;
+
+        if (new FileInfo(filePath).Extension != null)
+            filePath += extension;
+
+        var directoryPath = Path.GetDirectoryName(filePath);
+        if (!Directory.Exists(directoryPath))
+            Directory.CreateDirectory(directoryPath);
+
+        var fileBytes = restClient.DownloadData(restRequest);
+
+        if (fileBytes != null)
+            await File.WriteAllBytesAsync(filePath, fileBytes, cancellationToken);
+
+        return File.Exists(filePath) ? @$"File {filePath} downloaded" : @$"There is no data to write to the file.";
     }
 }

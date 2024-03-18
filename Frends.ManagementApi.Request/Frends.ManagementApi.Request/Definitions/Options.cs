@@ -12,13 +12,13 @@ public class Options
     /// If set to true, an exception will be thrown when an error occurs.
     /// If set to false, Task will try to continue and the error message will be added into Result.ErrorMessage and Result.Success will be set to false.
     /// </summary>
-    /// <example>true</example>
+    /// <example>true.</example>
     [DefaultValue(true)]
     public bool ThrowExceptionOnError { get; set; }
 
     /// <summary>
-    /// Timeout in seconds.
+    /// Gets or sets timeout in seconds.
     /// </summary>
-    /// <example>10</example>
+    /// <example>10.</example>
     public int Timeout { get; set; }
 }
