@@ -1,0 +1,87 @@
+openapi: 3.0.1
+info:
+  title: Task test
+  description: ''
+  version: 0.0.1
+servers:
+  - url: /api/tasktesting/v1
+paths:
+  /customers:
+    get:
+      summary: Returns a array of customers.
+      description: Array of customers.
+      responses:
+        '200':
+          description: A JSON array of customer info
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/CreateCustomerModel'
+      responses:
+        '200':
+          description: ok
+      security:
+        - api_key: [ ]
+  '/customers/{customerId}':
+    get:
+      parameters:
+        - name: customerId
+          in: path
+          description: A single customer id to fetch
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Customer'
+components:
+  schemas:
+    Customer:
+      properties:
+        id:
+          type: integer
+          format: int32
+        CompanyName:
+          type: string
+        mainContact:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        created:
+          type: string
+          format: date-time
+    CreateCustomerModel:
+      properties:
+        companyName:
+          type: string
+        mainContact:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        created:
+          type: string
+          format: date-time
+  requestBodies:
+    CreateCustomerModel:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateCustomerModel'
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: x-ApiKey
+      in: header
