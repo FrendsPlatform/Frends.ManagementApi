@@ -3,6 +3,7 @@ namespace Frends.ManagementApi.Request.Tests;
 using Frends.ManagementApi.Request.Definitions;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -69,9 +70,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-keys/1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -79,9 +80,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-rulesets/1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -89,9 +90,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-keys/name/test";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -99,9 +100,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-rulesets/name/FrendsAcademy";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -109,9 +110,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-rulesets?pagingQuery.pageNumber=1&pagingQuery.pageSize=1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -119,9 +120,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/access/api-keys?environmentId=51&pagingQuery.pageNumber=1&pagingQuery.pageSize=1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -129,9 +130,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/api-specifications/3";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -139,9 +140,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/api-specifications/3/1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -149,9 +150,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/api-management/api-specifications?pagingQuery.pageNumber=1&pagingQuery.pageSize=1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -159,9 +160,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/environments";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -169,9 +170,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/agent-groups/51";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -179,9 +180,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/environments/51";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -189,9 +190,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/environments/51/agent-groups";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -199,9 +200,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/environment-variables/1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -209,9 +210,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/environment-variables?environmentVariableName=ManagementAPI&pagingQuery.pageNumber=1&pagingQuery.pageSize=1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -219,9 +220,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/processes/1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -231,10 +232,10 @@ internal class UnitTests
         this.input.DownloadPath = path;
         this.input.Url = testTenant + "api/v1/processes/1/export";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data.Contains("downloaded"));
-        Assert.IsTrue(File.Exists(path + ".json_"));
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data.Contains("downloaded"));
+        ClassicAssert.IsTrue(File.Exists(path + ".json_"));
     }
 
     [Test]
@@ -242,9 +243,9 @@ internal class UnitTests
     {
         this.input.Url = testTenant + "api/v1/processes/6933c9e1-95f4-4494-a630-d3d6b36f7006/versions/2";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -254,10 +255,10 @@ internal class UnitTests
         this.input.DownloadPath = path;
         this.input.Url = testTenant + "api/v1/processes/batch-export?ids=1";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data.Contains("downloaded"));
-        Assert.IsTrue(File.Exists(path + ".json_"));
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data.Contains("downloaded"));
+        ClassicAssert.IsTrue(File.Exists(path + ".json_"));
     }
 
     [Test]
@@ -276,9 +277,9 @@ internal class UnitTests
 }}";
 
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
 
         _apikeyId = JsonConvert.DeserializeObject<dynamic>(ret.Data.ToString()).data.id;
     }
@@ -300,9 +301,9 @@ internal class UnitTests
 }}";
 
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
         _rulesetId = JsonConvert.DeserializeObject<dynamic>(ret.Data.ToString()).data.id;
     }
 
@@ -315,9 +316,9 @@ internal class UnitTests
         this.input.FilePaths = new[] { new SendFileParameters() { FileParameterKey = FileParameterKey.File, Fullpath = _apiSpecFile } };
 
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
 
         _apiSpecId = JsonConvert.DeserializeObject<dynamic>(ret.Data.Content.ToString()).data.id;
     }
@@ -340,9 +341,9 @@ internal class UnitTests
   ]
 }}";
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     public async Task Test_Delete_ApiKey()
@@ -361,9 +362,9 @@ internal class UnitTests
 }}";
 
         var ret = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(ret.Success);
-        Assert.IsNull(ret.ErrorMessage);
-        Assert.NotNull(ret.Data);
+        ClassicAssert.IsTrue(ret.Success);
+        ClassicAssert.IsNull(ret.ErrorMessage);
+        ClassicAssert.NotNull(ret.Data);
     }
 
     [Test]
@@ -373,8 +374,8 @@ internal class UnitTests
         this.input.Method = Methods.Delete;
         this.input.Url = $@"{testTenant}api/v1/api-management/access/api-rulesets/{rulesetId}";
         var result = await ManagementApi.Request(this.input, this.options, default);
-        Assert.IsTrue(result.Success);
-        Assert.IsNull(result.ErrorMessage);
+        ClassicAssert.IsTrue(result.Success);
+        ClassicAssert.IsNull(result.ErrorMessage);
     }
 
     public async Task<int> CreateApiKey()

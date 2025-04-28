@@ -35,7 +35,7 @@ public static class ManagementApi
             RestClientOptions restClientOptions = new()
             {
                 BaseUrl = new Uri(input.Url),
-                MaxTimeout = (int)TimeSpan.FromSeconds(Convert.ToDouble(options.Timeout)).Ticks,
+                Timeout = TimeSpan.FromSeconds(Convert.ToDouble(options.Timeout)),
                 Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(token, "Bearer"),
             };
             using var restClient = new RestClient(restClientOptions);
